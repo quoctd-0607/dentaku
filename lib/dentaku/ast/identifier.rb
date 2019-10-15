@@ -21,8 +21,20 @@ module Dentaku
         case v
         when Node
           v.value(context)
-        when Proc
-          v.call
+        else
+          v
+        end
+      end
+
+      def string_value(context = {})
+        v = context.fetch(identifier) do
+          raise UnboundVariableError.new([identifier]),
+                "no value provided for variables: #{identifier}"
+        end
+
+        case v
+        when Node
+          v.value(context)
         else
           v
         end

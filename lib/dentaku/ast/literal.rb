@@ -15,6 +15,8 @@ module Dentaku
       def dependencies(*)
         []
       end
+
+      alias :string_value :value
     end
   end
 end

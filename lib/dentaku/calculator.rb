@@ -9,8 +9,7 @@ require 'dentaku/token'
 module Dentaku
   class Calculator
     include StringCasing
-    attr_reader :result, :memory, :tokenizer, :case_sensitive, :aliases,
-                :nested_data_support, :ast_cache
+    attr_reader :result, :memory, :tokenizer, :case_sensitive, :aliases, :nested_data_support
 
     def initialize(options = {})
       clear
@@ -47,8 +46,25 @@ module Dentaku
 
     def evaluate(expression, data = {}, &block)
       evaluate!(expression, data)
-    rescue Dentaku::Error, Dentaku::ArgumentError, Dentaku::ZeroDivisionError => ex
+    rescue UnboundVariableError, Dentaku::ArgumentError => ex
       block.call(expression, ex) if block_given?
+    end
+
+    def evaluate_string(expression, data = {}, &block)
+      return expression.map { |e|
+        evaluate(e, data, &block)
+      } if expression.is_a? Array
+
+      store(data) do
+        node = expression
+        node = ast(node) unless node.is_a?(AST::Node)
+        unbound = node.dependencies - memory.keys
+        unless unbound.empty?
+          raise UnboundVariableError.new(unbound),
+                "no value provided for variables: #{unbound.join(', ')}"
+        end
+        node.string_value(memory)
+      end
     end
 
     def evaluate!(expression, data = {}, &block)
@@ -96,10 +112,6 @@ module Dentaku
           @ast_cache[expression] = node if cache_ast?
         end
       }
-    end
-
-    def load_cache(ast_cache)
-      @ast_cache = ast_cache
     end
 
     def clear_cache(pattern = :all)

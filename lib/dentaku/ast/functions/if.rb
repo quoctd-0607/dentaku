@@ -15,6 +15,23 @@ module Dentaku
         predicate.value(context) ? left.value(context) : right.value(context)
       end
 
+      def string_value(context = {})
+        predicate_left, predicate_right, left_str, right_str = [predicate.left, predicate.right, left, right].map do |n|
+          case n.class.name
+            when "Dentaku::AST::Identifier"
+              context[n.identifier]
+            when "Dentaku::AST::Numeric"
+              n.value
+            when "Dentaku::AST::If"
+              n.string_value(context)
+            else
+              ""
+          end
+        end
+
+        "IF(#{predicate_left} #{predicate.operator.to_s} #{predicate_right}, #{left_str}, #{right_str})"
+      end
+
       def node_type
         :condition
       end
@@ -24,13 +41,8 @@ module Dentaku
       end
 
       def dependencies(context = {})
-        deps = predicate.dependencies(context)
-
-        if deps.empty?
-          predicate.value(context) ? left.dependencies(context) : right.dependencies(context)
-        else
-          (deps + left.dependencies(context) + right.dependencies(context)).uniq
-        end
+        # TODO : short-circuit?
+        (predicate.dependencies(context) + left.dependencies(context) + right.dependencies(context)).uniq
       end
     end
   end

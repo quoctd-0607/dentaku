@@ -43,6 +43,20 @@ module Dentaku
             self.class.implementation.call(*args)
           end
 
+          def string_value(context = {})
+            type = self.class.name
+            case type
+              when :round
+                "ROUND(#{@args.map{|arg| arg.string_value(context)}.join(" ")})"
+              when :min, :max
+                "#{type.upcase}(#{@args.first.string_value(context)}, #{@args.last.string_value(context)})"
+              when :avg
+                "AVG(#{@args.map{|arg| arg.string_value(context)}.join(", ")})"
+              else
+                @args.map{|arg| arg.string_value(context)}.join(" ")
+            end
+          end
+
           def type
             self.class.type
           end

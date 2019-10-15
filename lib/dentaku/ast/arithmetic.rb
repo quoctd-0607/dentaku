@@ -32,6 +32,11 @@ module Dentaku
         l.public_send(operator, r)
       end
 
+      def string_value(context = {})
+        return "" if left.nil? || right.nil?
+        [left.string_value(context), operator, right.string_value(context)].join(" ")
+      end
+
       private
 
       def cast(val, prefer_integer = true)
@@ -40,7 +45,7 @@ module Dentaku
       end
 
       def numeric(val, prefer_integer)
-        v = BigDecimal(val, Float::DIG + 1)
+        v = BigDecimal.new(val, Float::DIG + 1)
         v = v.to_i if prefer_integer && v.frac.zero?
         v
       rescue ::TypeError
@@ -50,7 +55,7 @@ module Dentaku
       end
 
       def valid_node?(node)
-        node && (node.type == :numeric || node.dependencies.any?)
+        node && (node.dependencies.any? || node.type == :numeric)
       end
 
       def valid_left?
@@ -77,7 +82,7 @@ module Dentaku
       end
 
       def validate_format(string)
-        unless string =~ /\A-?\d*(\.\d+)?\z/ && !string.empty?
+        unless string =~ /\A-?\d*(\.\d+)?\z/
           raise Dentaku::ArgumentError.for(:invalid_value, value: string, for: BigDecimal),
                 "String input '#{string}' is not coercible to numeric"
         end
@@ -156,14 +161,6 @@ module Dentaku
         unless valid_right?
           raise NodeError.new(:numeric, right.type, :right),
                 "#{self.class} requires numeric operands"
-        end
-      end
-
-      def dependencies(context = {})
-        if percent?
-          @right.dependencies(context)
-        else
-          super
         end
       end
 

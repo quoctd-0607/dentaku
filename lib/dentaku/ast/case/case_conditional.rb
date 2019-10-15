@@ -1,5 +1,3 @@
-require 'dentaku/exceptions'
-
 module Dentaku
   module AST
     class CaseConditional < Node
@@ -9,12 +7,11 @@ module Dentaku
       def initialize(when_statement, then_statement)
         @when = when_statement
         unless @when.is_a?(AST::CaseWhen)
-          raise ParseError.for(:node_invalid), 'Expected first argument to be a CaseWhen'
+          raise 'Expected first argument to be a CaseWhen'
         end
-
         @then = then_statement
         unless @then.is_a?(AST::CaseThen)
-          raise ParseError.for(:node_invalid), 'Expected second argument to be a CaseThen'
+          raise 'Expected second argument to be a CaseThen'
         end
       end
 

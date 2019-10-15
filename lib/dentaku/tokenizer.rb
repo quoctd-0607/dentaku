@@ -12,7 +12,7 @@ module Dentaku
     def tokenize(string, options = {})
       @nesting = 0
       @tokens  = []
-      @aliases = options.fetch(:aliases, global_aliases)
+      @aliases = options.fetch(:aliases, Dentaku.aliases)
       input    = strip_comments(string.to_s.dup)
       input    = replace_aliases(input)
       @case_sensitive = options.fetch(:case_sensitive, false)
@@ -83,11 +83,6 @@ module Dentaku
     end
 
     private
-
-    def global_aliases
-      return {} unless Dentaku.respond_to?(:aliases)
-      Dentaku.aliases
-    end
 
     def fail!(reason, **meta)
       message =

@@ -3,20 +3,7 @@ require_relative '../function'
 module Dentaku
   module AST
     module StringFunctions
-      class Base < Function
-        def type
-          :string
-        end
-
-        def negative_argument_failure(fun, arg = 'length')
-          raise Dentaku::ArgumentError.for(
-            :invalid_value,
-            function_name: "#{fun}()"
-          ), "#{fun}() requires #{arg} to be positive"
-        end
-      end
-
-      class Left < Base
+      class Left < Function
         def initialize(*args)
           super
           @string, @length = *@args
@@ -25,12 +12,11 @@ module Dentaku
         def value(context = {})
           string = @string.value(context).to_s
           length = @length.value(context)
-          negative_argument_failure('LEFT') if length < 0
           string[0, length]
         end
       end
 
-      class Right < Base
+      class Right < Function
         def initialize(*args)
           super
           @string, @length = *@args
@@ -39,12 +25,11 @@ module Dentaku
         def value(context = {})
           string = @string.value(context).to_s
           length = @length.value(context)
-          negative_argument_failure('RIGHT') if length < 0
           string[length * -1, length] || string
         end
       end
 
-      class Mid < Base
+      class Mid < Function
         def initialize(*args)
           super
           @string, @offset, @length = *@args
@@ -53,14 +38,12 @@ module Dentaku
         def value(context = {})
           string = @string.value(context).to_s
           offset = @offset.value(context)
-          negative_argument_failure('MID', 'offset') if offset < 0
           length = @length.value(context)
-          negative_argument_failure('MID') if length < 0
           string[offset - 1, length].to_s
         end
       end
 
-      class Len < Base
+      class Len < Function
         def initialize(*args)
           super
           @string = @args[0]
@@ -70,13 +53,9 @@ module Dentaku
           string = @string.value(context).to_s
           string.length
         end
-
-        def type
-          :numeric
-        end
       end
 
-      class Find < Base
+      class Find < Function
         def initialize(*args)
           super
           @needle, @haystack = *@args
@@ -89,13 +68,9 @@ module Dentaku
           pos = haystack.index(needle)
           pos && pos + 1
         end
-
-        def type
-          :numeric
-        end
       end
 
-      class Substitute < Base
+      class Substitute < Function
         def initialize(*args)
           super
           @original, @search, @replacement = *@args
@@ -110,7 +85,7 @@ module Dentaku
         end
       end
 
-      class Concat < Base
+      class Concat < Function
         def initialize(*args)
           super
         end
@@ -120,7 +95,7 @@ module Dentaku
         end
       end
 
-      class Contains < Base
+      class Contains < Function
         def initialize(*args)
           super
           @needle, @haystack = *args
@@ -128,10 +103,6 @@ module Dentaku
 
         def value(context = {})
           @haystack.value(context).to_s.include? @needle.value(context).to_s
-        end
-
-        def type
-          :logical
         end
       end
     end

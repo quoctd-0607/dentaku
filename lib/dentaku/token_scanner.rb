@@ -43,7 +43,6 @@ module Dentaku
           :combinator,
           :operator,
           :grouping,
-          :array,
           :access,
           :case_statement,
           :comparator,
@@ -91,7 +90,7 @@ module Dentaku
 
       def numeric
         new(:numeric, '((?:\d+(\.\d+)?|\.\d+)(?:(e|E)(\+|-)?\d+)?)\b', lambda { |raw|
-          raw =~ /\./ ? BigDecimal(raw) : raw.to_i
+          raw =~ /\./ ? BigDecimal.new(raw) : raw.to_i
         })
       end
 
@@ -128,11 +127,6 @@ module Dentaku
       def grouping
         names = { open: '(', close: ')', comma: ',' }.invert
         new(:grouping, '\(|\)|,', lambda { |raw| names[raw] })
-      end
-
-      def array
-        names = { array_start: '{', array_end: '}', }.invert
-        new(:array, '\{|\}|,', lambda { |raw| names[raw] })
       end
 
       def access

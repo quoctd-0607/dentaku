@@ -46,8 +46,6 @@ module Dentaku
       args = Array.new(args_size) { output.pop }.reverse
 
       output.push operator.new(*args)
-    rescue ::ArgumentError => e
-      raise Dentaku::ArgumentError, e.message
     rescue NodeError => e
       fail! :node_invalid, operator: operator, child: e.child, expect: e.expect, actual: e.actual
     end
@@ -113,19 +111,17 @@ module Dentaku
               open_cases = 0
               case_end_index = nil
 
-              input.each_with_index do |input_token, index|
-                if input_token.category == :case
-                  if input_token.value == :open
-                    open_cases += 1
-                  end
+              input.each_with_index do |token, index|
+                if token.category == :case && token.value == :open
+                  open_cases += 1
+                end
 
-                  if input_token.value == :close
-                    if open_cases > 0
-                      open_cases -= 1
-                    else
-                      case_end_index = index
-                      break
-                    end
+                if token.category == :case && token.value == :close
+                  if open_cases > 0
+                    open_cases -= 1
+                  else
+                    case_end_index = index
+                    break
                   end
                 end
               end
@@ -133,8 +129,7 @@ module Dentaku
               subparser = Parser.new(
                 inner_case_inputs,
                 operations: [AST::Case],
-                arities: [0],
-                function_registry: @function_registry
+                arities: [0]
               )
               subparser.parse
               output.concat(subparser.output)
@@ -210,26 +205,9 @@ module Dentaku
             end
 
             unless operations.last == AST::Access
-              fail! :unbalanced_bracket, token: token
+              fail! :unbalanced_bracket, token
             end
             consume
-          end
-
-        when :array
-          case token.value
-          when :array_start
-            operations.push AST::Array
-            arities.push 0
-          when :array_end
-            while operations.any? && operations.last != AST::Array
-              consume
-            end
-
-            unless operations.last == AST::Array
-              fail! :unbalanced_bracket, token: token
-            end
-
-            consume(arities.pop.succ)
           end
 
         when :grouping
@@ -258,9 +236,8 @@ module Dentaku
             end
 
           when :comma
-            fail! :invalid_statement if arities.empty?
             arities[-1] += 1
-            while operations.any? && operations.last != AST::Grouping && operations.last != AST::Array
+            while operations.any? && operations.last != AST::Grouping
               consume
             end
 

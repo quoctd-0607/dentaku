@@ -11,15 +11,15 @@ Dentaku::AST::Function.register(:or, :logical, lambda { |*args|
 
   args.any? do |arg|
     case arg
-    when TrueClass
+    when TrueClass, nil
       true
-    when FalseClass, nil
+    when FalseClass
       false
     else
       raise Dentaku::ArgumentError.for(
         :incompatible_type,
-        function_name: 'OR()', expect: :logical, actual: arg.class
-      ), 'OR() requires arguments to be logical expressions'
+        function_name: 'AND()', expect: :logical, actual: arg.class
+      ), 'AND() requires arguments to be logical expressions'
     end
   end
 })

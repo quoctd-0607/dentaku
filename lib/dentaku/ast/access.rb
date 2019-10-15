@@ -22,10 +22,6 @@ module Dentaku
       def dependencies(context = {})
         @structure.dependencies(context) + @index.dependencies(context)
       end
-
-      def type
-        nil
-      end
     end
   end
 end

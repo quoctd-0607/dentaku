@@ -44,6 +44,8 @@ module Dentaku
     @aliases = hash
   end
 
+  private
+
   def self.calculator
     @calculator ||= Dentaku::Calculator.new
   end
@@ -51,8 +53,4 @@ end
 
 def Dentaku(expression, data = {})
   Dentaku.evaluate(expression, data)
-end
-
-def Dentaku!(expression, data = {})
-  Dentaku.evaluate!(expression, data)
 end

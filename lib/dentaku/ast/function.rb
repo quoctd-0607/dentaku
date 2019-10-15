@@ -38,11 +38,10 @@ module Dentaku
 
         if value.is_a?(::String)
           number = value[/\A-?\d*\.?\d+\z/]
-          return number.include?('.') ? BigDecimal(number, DIG) : number.to_i if number
+          return number.include?('.') ? ::BigDecimal.new(number, DIG) : number.to_i if number
         end
 
-        raise Dentaku::ArgumentError.for(:incompatible_type, value: value, for: Numeric),
-          "'#{value || value.class}' is not coercible to numeric"
+        raise TypeError, "#{value || value.class} could not be cast to a number."
       end
     end
   end

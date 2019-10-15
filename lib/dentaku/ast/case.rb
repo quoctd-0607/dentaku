@@ -3,7 +3,6 @@ require_relative './case/case_when'
 require_relative './case/case_then'
 require_relative './case/case_switch_variable'
 require_relative './case/case_else'
-require 'dentaku/exceptions'
 
 module Dentaku
   module AST
@@ -12,17 +11,16 @@ module Dentaku
         @switch = nodes.shift
 
         unless @switch.is_a?(AST::CaseSwitchVariable)
-          raise ParseError.for(:node_invalid), 'Case missing switch variable'
+          raise 'Case missing switch variable'
         end
 
         @conditions = nodes
 
-        @else = nil
         @else = @conditions.pop if @conditions.last.is_a?(AST::CaseElse)
 
         @conditions.each do |condition|
           unless condition.is_a?(AST::CaseConditional)
-            raise ParseError.for(:node_invalid), "#{condition} is not a CaseConditional"
+            raise "#{condition} is not a CaseConditional"
           end
         end
       end
@@ -38,7 +36,7 @@ module Dentaku
         if @else
           return @else.value(context)
         else
-          raise ArgumentError.for(:invalid_value), "No block matched the switch value '#{switch_value}'"
+          raise "No block matched the switch value '#{switch_value}'"
         end
       end
 

@@ -14,21 +14,11 @@ module Dentaku
       def operator
         raise NotImplementedError
       end
-
-      private
-
-      def value
-        yield
-      rescue ::ArgumentError => argument_error
-        raise Dentaku::ArgumentError, argument_error.message
-      rescue NoMethodError => no_method_error
-        raise Dentaku::Error, no_method_error.message
-      end
     end
 
     class LessThan < Comparator
       def value(context = {})
-        super() { left.value(context) < right.value(context) }
+        left.value(context) < right.value(context)
       end
 
       def operator
@@ -38,7 +28,7 @@ module Dentaku
 
     class LessThanOrEqual < Comparator
       def value(context = {})
-        super() { left.value(context) <= right.value(context) }
+        left.value(context) <= right.value(context)
       end
 
       def operator
@@ -48,7 +38,7 @@ module Dentaku
 
     class GreaterThan < Comparator
       def value(context = {})
-        super() { left.value(context) > right.value(context) }
+        left.value(context) > right.value(context)
       end
 
       def operator
@@ -58,7 +48,7 @@ module Dentaku
 
     class GreaterThanOrEqual < Comparator
       def value(context = {})
-        super() { left.value(context) >= right.value(context) }
+        left.value(context) >= right.value(context)
       end
 
       def operator
@@ -68,7 +58,7 @@ module Dentaku
 
     class NotEqual < Comparator
       def value(context = {})
-        super() { left.value(context) != right.value(context) }
+        left.value(context) != right.value(context)
       end
 
       def operator
@@ -78,7 +68,7 @@ module Dentaku
 
     class Equal < Comparator
       def value(context = {})
-        super() { left.value(context) == right.value(context) }
+        left.value(context) == right.value(context)
       end
 
       def operator
